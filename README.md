@@ -1,4 +1,4 @@
-# facility_app
+# flutter_getx_sample
 
 A new Flutter project built using getX.
 
