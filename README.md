@@ -8,6 +8,8 @@ This project uses getX for reactive state management, routing and other most com
 
 ## Overview of project
 
+All major moving parts are with the `/lib` directory and should be considered the base directory while development is concerned
+
 `/main.dart`
 
 - contains info for maintaining the state of the app for the user. It initializes firebase, sets up routing.
