@@ -153,7 +153,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Get.toNamed(PhoneLoginScreen.routeName);
+                    _authController.loginType.value = 'PHONE';
                   },
                   child: Container(
                     height: 60.0,

@@ -11,12 +11,17 @@ class PhoneLoginScreen extends StatelessWidget {
 
   final formKey = new GlobalKey<FormState>();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController pinController = TextEditingController();
 
-  String email, password;
+  String phone, pin;
 
   handleFormSubmit() async {
-    if (this.formKey.currentState.validate()) {
+    if (this.formKey.currentState.validate() &&
+        _authController.verificationCodeSent.value == false) {
       await _authController.submitPhoneNumber(phoneController.text);
+    } else if (this.formKey.currentState.validate() &&
+        _authController.verificationCodeSent.value == true) {
+      await _authController.loginWithPhone(pinController.text);
     }
     // _authController.submitOTP('000000');
   }
@@ -79,10 +84,52 @@ class PhoneLoginScreen extends StatelessWidget {
                       ),
                       textCapitalization: TextCapitalization.none,
                       onChanged: (value) {
-                        this.email = value;
+                        this.phone = value;
                       },
                       validator: (value) =>
                           value.isEmpty ? 'Phone is required' : null,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Obx(
+                      () => _authController.verificationCodeSent.value == true
+                          ? TextFormField(
+                              autocorrect: false,
+                              controller: pinController,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                labelText: 'Pin',
+                                labelStyle: kSubtitleStyle,
+                                errorStyle: TextStyle(
+                                  color: Colors.deepOrange,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  borderSide:
+                                      BorderSide(color: kBlack, width: 1.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  borderSide:
+                                      BorderSide(color: kBlack, width: 1.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  borderSide:
+                                      BorderSide(color: kBlack, width: 1.0),
+                                ),
+                              ),
+                              textCapitalization: TextCapitalization.none,
+                              onChanged: (value) {
+                                this.pin = value;
+                              },
+                              validator: (value) =>
+                                  value.isEmpty ? 'Pin is required' : null,
+                            )
+                          : SizedBox(
+                              height: 10.0,
+                            ),
                     ),
                     SizedBox(
                       height: 10.0,

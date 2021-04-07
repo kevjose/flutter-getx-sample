@@ -7,10 +7,11 @@ import 'package:get/get.dart';
 class AuthController extends GetxController {
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   Rxn<User> _firebaseUser = Rxn<User>();
-  // var _phoneAuthCredential = Rxn<AuthCredential>();
-  var verificationIdCtrl = Rxn<String>();
-  var codeCtrl = Rxn<int>();
+  String verificationIdCtrl;
+  int codeCtrl;
   var loading = false.obs;
+  var verificationCodeSent = false.obs;
+  var loginType = 'EMAIL'.obs;
 
   final AuthService _authService = AuthService();
 
@@ -19,7 +20,6 @@ class AuthController extends GetxController {
 
   @override
   onInit() {
-    // print('current ${_firebaseAuth.currentUser}');
     _firebaseUser.bindStream(_firebaseAuth.authStateChanges());
     // _firebaseAuth.signOut();
     super.onInit();
@@ -50,6 +50,8 @@ class AuthController extends GetxController {
       Get.offAllNamed(RootScreen.routeName);
     } catch (e) {
       Helpers.showSnackbar(title: 'Error', message: e.message);
+    } finally {
+      loginType.value = 'EMAIL';
     }
   }
 
@@ -59,11 +61,12 @@ class AuthController extends GetxController {
   void verificationFailed(FirebaseAuthException error) {}
 
   void codeSent(String verificationId, int code) {
-    verificationIdCtrl = Rxn<String>(verificationId);
-    codeCtrl = Rxn<int>(code);
+    verificationIdCtrl = verificationId;
+    codeCtrl = code;
     print('_verificationId: $verificationIdCtrl');
     print('_code: $codeCtrl');
-    submitOTP('000000');
+    loading.value = false;
+    verificationCodeSent.value = true;
   }
 
   void codeAutoRetrievalTimeout(String verificationId) {}
@@ -81,32 +84,30 @@ class AuthController extends GetxController {
       );
     } catch (error) {
       print('submitPhoneNumber: $error');
-    } finally {
-      loading.value = false;
     }
   }
 
-  void submitOTP(smsCode) {
-    loginWithPhone();
-  }
-
-  Future<void> loginWithPhone() async {
+  Future<void> loginWithPhone(String smsCode) async {
     try {
-      final _verificationId = verificationIdCtrl.toString();
+      loading.value = true;
+      final _verificationId = verificationIdCtrl;
 
       print('verificationIdCtrl: $_verificationId');
       AuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: _verificationId, smsCode: '000000');
-      print('credential: $credential');
+          verificationId: _verificationId, smsCode: smsCode.trim());
       UserCredential _authResultPhone =
           await _firebaseAuth.signInWithCredential(credential);
-      print('_authResultPhone: $_authResultPhone');
-      // _firebaseUser = Rxn<User>(authRes.user);
-      // print(_firebaseUser);
 
-      print('Something');
+      if (_authResultPhone != null && _authResultPhone.user != null) {
+        var token = await _firebaseAuth.currentUser.getIdToken();
+        print('token: $token');
+        setUser(_firebaseAuth.currentUser);
+      }
     } catch (e) {
-      print(e);
+      Helpers.showSnackbar(title: 'Error', message: e.message);
+    } finally {
+      verificationCodeSent.value = false;
+      loading.value = false;
     }
   }
 }

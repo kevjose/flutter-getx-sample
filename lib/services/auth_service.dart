@@ -20,7 +20,7 @@ class AuthService {
     await FirebaseAuth.instance.verifyPhoneNumber(
       /// Make sure to prefix with your country code
       phoneNumber: phoneNumber,
-      timeout: Duration(milliseconds: 10000),
+      timeout: Duration(seconds: 20),
       verificationCompleted: verificationCompleted,
       verificationFailed: verificationFailed,
       codeSent: codeSent,

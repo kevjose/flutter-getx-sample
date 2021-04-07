@@ -18,7 +18,8 @@ class HomeScreen extends GetWidget<AuthController> {
                   SizedBox(
                     height: 10,
                   ),
-                  Text("${controller.user.email}"),
+                  Text(
+                      "Email: ${controller.user.email}, Contact: ${controller.user.phoneNumber}"),
                 ],
               ),
             ),
